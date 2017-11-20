@@ -61,25 +61,18 @@ A simple responsive video player
           type: String,
         },
         /**
-         * Type of video, compute based on source.
-         */
-        type: {
-          type: String,
-          computed: '_computeType(source)',
-        },
-        /**
          * Computed / cleaned up source.
          */
         src: {
           type: String,
-          computed: '_computeSRC(type)',
+          computed: '_computeSRC(source)',
         },
         /**
          * Computesd if this should be iframed or not.
          */
         iframed: {
           type: Boolean,
-          computed: '_computeIframed(type)',
+          computed: '_computeIframed(source)',
         },
         /**
          * Video width
@@ -173,11 +166,11 @@ A simple responsive video player
        * Type is set by source so this ensures a waterfall
        * of valid values.
        */
-      _computeSRC: function(type) {
-        let source = this.source;
-        if (typeof type !== typeof undefined) {
+      _computeSRC: function(source) {
+        if (typeof source !== typeof undefined) {
+          let type = this.getType(source);
           // ensure that this is a valid url / cleaned up a bit
-          source = this.cleanSource(this.source, type);
+          source = this.cleanSource(source, type);
           if (type == 'vimeo') {
             if (this.vimeoTitle) {
               source += '?title=1';
@@ -231,7 +224,8 @@ A simple responsive video player
       /**
        * Compute iframe or video tag for implementation.
        */
-      _computeIframed: function(type) {
+      _computeIframed: function(source) {
+        let type = this.getType(source);
         if (type == 'youtube' || type == 'vimeo' || type == 'external') {
           return true;
         }
@@ -272,7 +266,7 @@ A simple responsive video player
       /**
        * Figure out the type of video based on source.
        */
-      _computeType: function(source) {
+      getType: function(source) {
         if (source.indexOf('vimeo') != -1) {
           return 'vimeo';
         }
@@ -287,7 +281,11 @@ A simple responsive video player
        */
       _computeResponsive: function(notResponsive) {
         return !notResponsive;
-      }
+      },
+      /**
+       * Need to notice the source change while still trickling this
+       * info down correctly.
+       */
     });
   </script>
 </dom-module>

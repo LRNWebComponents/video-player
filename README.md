@@ -9,7 +9,8 @@
 ```
 -->
 ```html
-<video-player></video-player>
+<video-player source="https://www.youtube.com/watch?v=o9RypkhGqrg"></video-player>
+
 ```
 
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/LRNWebComponents/video-player)

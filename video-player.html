@@ -241,64 +241,81 @@ A simple responsive video player
         let props = {
           'canScale': true,
           'canPosition': true,
-          'settings': [
-            {
-              'property': 'source',
-              'title': 'Source',
-              'description': 'The URL for this video.',
-              'inputMethod': 'textfield',
-              'type': 'bar',
-              'icon': 'link',
-              'required': true,
-              'validationType': 'url',
-            },
-            {
-              'property': 'caption',
-              'title': 'caption',
-              'description': 'Simple caption for under video',
-              'inputMethod': 'textfield',
-              'type': 'bar',
-              'icon': 'av:video-label',
-              'required': false,
-              'validationType': 'text',
-            },
-            {
-              'property': 'responsive',
-              'title': 'Responsive',
-              'description': 'The video automatically fills the available area.',
-              'inputMethod': 'boolean',
-              'type': 'bar',
-              'icon': 'image:photo-size-select-small',
-            },
-            {
-              'property': 'primaryColor',
-              'title': 'Primary color',
-              'description': 'Select the primary color used in the video',
-              'inputMethod': 'colorpicker',
-              'type': 'bar',
-              'icon': 'editor:format-color-fill',
-            },
-            {
-              'property': 'secondaryColor',
-              'title': 'Secondary color',
-              'description': 'Select the secondary color used for the video',
-              'inputMethod': 'colorpicker',
-              'type': 'bar',
-              'icon': 'editor:format-color-fill',
-            },
-            {
-              'property': 'videoStyle',
-              'title': 'Style',
-              'description': 'Simple video presentation style.',
-              'inputMethod': 'select',
-              'options': {
-                'style1': 'Style 1',
-                'style2': 'Style 2',
+          'canEditSource': false,
+          'settings': {
+            'quick': [
+              {
+                'property': 'source',
+                'title': 'Source',
+                'description': 'The URL for this video.',
+                'inputMethod': 'textfield',
+                'icon': 'link',
+                'required': true,
+                'validationType': 'url',
               },
-              'type': 'bar',
-              'icon': 'av:subscriptions',
-            },
-          ]
+              {
+                'property': 'responsive',
+                'title': 'Responsive',
+                'description': 'The video automatically fills the available area.',
+                'inputMethod': 'boolean',
+                'icon': 'image:photo-size-select-small',
+              },
+            ],
+            'configure': [
+              {
+                'property': 'source',
+                'title': 'Source',
+                'description': 'The URL for this video.',
+                'inputMethod': 'textfield',
+                'icon': 'link',
+                'required': true,
+                'validationType': 'url',
+              },
+              {
+                'property': 'caption',
+                'title': 'caption',
+                'description': 'Simple caption for under video',
+                'inputMethod': 'textfield',
+                'icon': 'av:video-label',
+                'required': false,
+                'validationType': 'text',
+              },
+              {
+                'property': 'responsive',
+                'title': 'Responsive',
+                'description': 'The video automatically fills the available area.',
+                'inputMethod': 'boolean',
+                'icon': 'image:photo-size-select-small',
+              },
+              {
+                'property': 'videoStyle',
+                'title': 'Style',
+                'description': 'Simple video presentation style.',
+                'inputMethod': 'select',
+                'options': {
+                  'style1': 'Style 1',
+                  'style2': 'Style 2',
+                },
+                'icon': 'av:subscriptions',
+              },
+            ],
+            'advanced': [
+              {
+                'property': 'primaryColor',
+                'title': 'Primary color',
+                'description': 'Select the primary color used in the video',
+                'inputMethod': 'colorpicker',
+                'icon': 'editor:format-color-fill',
+              },
+              {
+                'property': 'secondaryColor',
+                'title': 'Secondary color',
+                'description': 'Select the secondary color used for the video',
+                'inputMethod': 'colorpicker',
+                'icon': 'editor:format-color-fill',
+              },
+            ]
+          }
         };
         this.setHaxProperties(props);
       },

@@ -1,6 +1,6 @@
 {
   "name": "video-player",
-  "description": "A LRN element",
+  "description": "A simple element for playing video from multiple sources",
   "main": "video-player.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.10.1",

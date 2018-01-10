@@ -2,6 +2,7 @@
 <link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../a11y-behaviors/a11y-behaviors.html">
 
 <!--
 `video-player`
@@ -23,7 +24,7 @@ A simple responsive video player
       :host[responsive] .responsive-video-container {
         position: relative;
         padding-bottom: 56.25%; /* 16:9 */
-        padding-top: 25px;
+        margin-top: 16px;
         height: 0;
       }
       :host[responsive] .responsive-video-container iframe {
@@ -43,7 +44,7 @@ A simple responsive video player
       .video-caption {
         font-style: italic;
         margin: 0;
-        padding: 0;
+        padding: 8px;
         @apply --video-player-caption-theme;
       }
     </style>
@@ -57,8 +58,6 @@ A simple responsive video player
     </div>
     <div id="videocaption" class$="video-caption [[secondaryColorClass]] [[textColorClass]]">
       [[caption]]
-    </div>
-    <div id="captionslot" class$="video-caption [[secondaryColorClass]] [[textColorClass]]">
       <slot name="caption"></slot>
     </div>
   </template>
@@ -66,7 +65,12 @@ A simple responsive video player
   <script>
     Polymer({
       is: 'video-player',
-      behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors, SchemaBehaviors.Schema],
+      behaviors: [
+        HAXBehaviors.PropertiesBehaviors,
+        MaterializeCSSBehaviors.ColorBehaviors,
+        SchemaBehaviors.Schema,
+        A11yBehaviors.A11y,
+      ],
       properties: {
         /**
          * Source of the video
@@ -141,7 +145,7 @@ A simple responsive video player
          */
         textColor: {
           type: String,
-          value: null,
+          value: '#000000',
           reflectToAttribute: true,
         },
         /**
@@ -335,35 +339,7 @@ A simple responsive video player
       _secondaryColorChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined && newValue != null) {
           // sees if there's enough contrast and adjusts them accordingly
-          this.validateTextColor('textColor', 'secondaryColor');
-        }
-      },
-      /**
-       * Validate and modify the text contrast to ensure the correct contrast
-       */
-      validateTextColor: function(textprop, bgprop) {
-        // verify the value is hex value
-        if (this[bgprop].includes('#')) {
-          let color = '';
-          // strip hash from string
-          const colorBuffer = this[bgprop].substring(1);
-          // convert rrggbb to decimal
-          const rgb = parseInt(colorBuffer, 16);
-          // extract RGB
-          const r = (rgb >> 16) & 0xff;
-          const g = (rgb >> 8) & 0xff;
-          const b = (rgb >> 0) & 0xff;
-          // calculate luma
-          const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-          // if the luma is to low switch to white text
-          if (luma < 141) {
-            color = '#ffffff';
-          }
-          else {
-            color = '#000000';
-          }
-          // Set color and background color vars
-          this.set(textprop, color);
+          this.computeTextPropContrast('textColor', 'secondaryColor');
         }
       },
       /**
@@ -448,11 +424,13 @@ A simple responsive video player
         if (color != null && color.toLowerCase() == '#ffffff') {
           return 'white-text';
         }
-        else if (color == '#000000') {
+        else if (color != null && color == '#000000') {
           return 'black-text';
         }
         else if (color != null && color.substring(0, 1) == '#') {
-          return this._colorTransform(color, '', '');
+          console.log(color);
+          console.log(this._colorTransform(color.toLowerCase(), '', ''));
+          return this._colorTransform(color.toLowerCase(), '', '');
         }
       },
       /**

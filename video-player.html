@@ -304,7 +304,8 @@ A simple responsive video player with ridiculously powerful backing
           }];
         }
         // only do this when we have a media group
-        if (!this.iframed && !this.sandboxed && typeof this.sources !== typeof undefined) {
+        // @todo bring this back in in order to stage collapse our current setup
+        /*if (!this.iframed && !this.sandboxed && typeof this.sources !== typeof undefined) {
           // set up the player
           let player = document.createElement('a11y-media-group');
           player.setAttribute('resource', this.schemaResourceID + '-video');
@@ -338,6 +339,7 @@ A simple responsive video player with ridiculously powerful backing
           // inject this player into the a11y player area
           Polymer.dom(this.$.a11yplayer).appendChild(inject);
         }
+        */
         // Establish hax properties if they exist
         let props = {
           'canScale': true,
@@ -398,6 +400,38 @@ A simple responsive video player with ridiculously powerful backing
                 'validationType': 'url',
               },
               {
+                'property': 'caption',
+                'title': 'caption',
+                'description': 'Simple caption for under video',
+                'inputMethod': 'textfield',
+                'icon': 'av:video-label',
+                'required': false,
+                'validationType': 'text',
+              },
+              {
+                'property': 'responsive',
+                'title': 'Responsive',
+                'description': 'The video automatically fills the available area.',
+                'inputMethod': 'boolean',
+                'icon': 'image:photo-size-select-small',
+              },
+              {
+                'property': 'primaryColor',
+                'title': 'Primary color',
+                'description': 'Select the primary color used in the video',
+                'inputMethod': 'colorpicker',
+                'icon': 'editor:format-color-fill',
+              },
+              {
+                'property': 'secondaryColor',
+                'title': 'Secondary color',
+                'description': 'Select the secondary color used for the video',
+                'inputMethod': 'colorpicker',
+                'icon': 'editor:format-color-fill',
+              }
+            ],
+            'advanced': [
+              {
                 'property': 'sources',
                 'title': 'Source list',
                 'description': 'List of sources',
@@ -415,9 +449,9 @@ A simple responsive video player with ridiculously powerful backing
                     'description': 'Video type data',
                     'inputMethod': 'select',
                     'options': {
-                      'video/mp4' : 'mp4',
-                      'video/webm' : 'webm',
-                      'video/ogg' : 'ogg'
+                      'video/mp4': 'mp4',
+                      'video/webm': 'webm',
+                      'video/ogg': 'ogg'
                     },
                   },
                 ],
@@ -454,38 +488,7 @@ A simple responsive video player with ridiculously powerful backing
                   },
                 ],
               },
-              {
-                'property': 'caption',
-                'title': 'caption',
-                'description': 'Simple caption for under video',
-                'inputMethod': 'textfield',
-                'icon': 'av:video-label',
-                'required': false,
-                'validationType': 'text',
-              },
-              {
-                'property': 'responsive',
-                'title': 'Responsive',
-                'description': 'The video automatically fills the available area.',
-                'inputMethod': 'boolean',
-                'icon': 'image:photo-size-select-small',
-              },
-              {
-                'property': 'primaryColor',
-                'title': 'Primary color',
-                'description': 'Select the primary color used in the video',
-                'inputMethod': 'colorpicker',
-                'icon': 'editor:format-color-fill',
-              },
-              {
-                'property': 'secondaryColor',
-                'title': 'Secondary color',
-                'description': 'Select the secondary color used for the video',
-                'inputMethod': 'colorpicker',
-                'icon': 'editor:format-color-fill',
-              }
-            ],
-            'advanced': []
+            ]
           }
         };
         this.setHaxProperties(props);

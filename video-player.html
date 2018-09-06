@@ -68,6 +68,7 @@ A simple responsive video player with ridiculously powerful backing
         media-type$="[[sourceType]]"
         preload$="[[preload]]"  
         media-title$="[[mediaTitle]]" 
+        stand-alone$="[[__standAlone]]" 
         sticky-corner$="[[stickyCorner]]" 
         thumbnail-src$="[[thumbnailSrc]]"
         youtube-id$="[[youtubeId]]">
@@ -227,7 +228,7 @@ A simple responsive video player with ridiculously powerful backing
          */
         sourceData: {
           type: Array,
-          computed: '_getSourceData(source,sources)',
+          computed: '_getSourceData(source,sources,tracks)',
           reflectToAttribute: true
         },
         /**
@@ -536,7 +537,6 @@ A simple responsive video player with ridiculously powerful backing
        * Determine if it is compatible with a11y-media-player
        */
       _computeA11yMedia: function(sourceType, sandboxed) {
-        console.log('_computeA11yMedia',this,this.sourceData,!sandboxed,sourceType,!sandboxed && (sourceType == 'youtube' && sourceType == 'local'));
         if (!sandboxed && (sourceType == 'youtube' || sourceType == 'local')) {
           return true;
         }
@@ -557,7 +557,7 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Gets source and added to sources list
        */
-       _getSourceData: function(source, sources) {
+       _getSourceData: function(source, sources,tracks) {
         let temp = sources;
         if (source !== null) {
           let src = this._computeSRC(source);
@@ -567,6 +567,7 @@ A simple responsive video player with ridiculously powerful backing
           temp[i].type = temp[i].type !== undefined && temp[i].type !== null ? temp[i].type : this._computeMediaType(temp[i].src);
           temp[i].src = this._computeSRC(temp[i].src);
         }
+        this.__standAlone = tracks === undefined || tracks === null || tracks.length === 0;
         return temp;
       },
       /**

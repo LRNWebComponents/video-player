@@ -4,7 +4,6 @@
 <link rel="import" href="../schema-behaviors/schema-behaviors.html">
 <link rel="import" href="../a11y-behaviors/a11y-behaviors.html">
 <link rel="import" href="../media-behaviors/media-behaviors.html">
-<link rel="import" href="../a11y-media-player/a11y-media-group.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../a11y-media-player/a11y-media-player.html">
 
@@ -45,22 +44,10 @@ A simple responsive video player with ridiculously powerful backing
 
 <dom-module id="video-player">
   <template>
-    <style include="simple-colors">
+    <style>
       :host {
         display: block;
-      }
-      :host[responsive] .responsive-video-container {
-        position: relative;
-        padding-bottom: 56.25%; /* 16:9 */
-        margin-top: 16px;
-        height: 0;
-      }
-      :host[responsive] .responsive-video-container * {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        margin: 0 0 15px;
       }
       .video-caption {
         font-style: italic;
@@ -69,6 +56,7 @@ A simple responsive video player with ridiculously powerful backing
         @apply --video-player-caption-theme;
       }
     </style>
+    
     <template is="dom-if" if="[[isA11yMedia]]">
       <a11y-media-player 
         accent-color$="[[accentColor]]" 
@@ -77,25 +65,31 @@ A simple responsive video player with ridiculously powerful backing
         disable-interactive$="[[disableInteractive]]" 
         hide-timestamps$="[[hideTimestamps]]"  
         lang$="[[lang]]"  
+        media-type$="[[sourceType]]"
         preload$="[[preload]]"  
         media-title$="[[mediaTitle]]" 
         sticky-corner$="[[stickyCorner]]" 
-        thumbnail-src$="[[thumbnailSrc]]">
+        thumbnail-src$="[[thumbnailSrc]]"
+        youtube-id$="[[youtubeId]]">
         <slot name="caption"></slot>
-        <source src$="[[src]]" type$="[[mediaType]]">
-        <track src$="[[track]]" kind$="[[trackKind]]" label$="[[trackLabel]]" srclang$="[[trackLang]]">
+        <template id="sources" is="dom-repeat" items="[[sourceData]]" as="sd">
+          <source src$="[[sd.src]]" type$="[[sd.type]]">
+        </template>
+        <template id="tracks" is="dom-repeat" items="[[tracks]]" as="track">
+          <track src$="[[track.src]]" kind$="[[track.kind]]" label$="[[track.label]]" srclang$="[[track.lang]]">
+        </template>
       </a11y-media-player>
     </template>
     <template is="dom-if" if="[[!isA11yMedia]]">
       <template is="dom-if" if="[[sandboxed]]">
         <div class="responsive-video-container" lang$="[[lang]]">
-          <webview resource$="[[schemaResourceID]]-video" src$="[[src]]" width$="[[width]]" height$="[[height]]" frameborder="0"></webview>
+          <webview resource$="[[schemaResourceID]]-video" src$="[[sourceData.0.src]]" width$="[[width]]" height$="[[height]]" frameborder="0"></webview>
         </div>
       </template>
       <template is="dom-if" if="[[!sandboxed]]">
         <template is="dom-if" if="[[iframed]]">
           <div class="responsive-video-container" lang$="[[lang]]">
-            <iframe resource$="[[schemaResourceID]]-video" src$="[[src]]" width$="[[width]]" height$="[[height]]" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+            <iframe resource$="[[schemaResourceID]]-video" src$="[[sourceData.0.src]]" width$="[[width]]" height$="[[height]]" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
           </div>
         </template>
       </template>
@@ -170,14 +164,14 @@ A simple responsive video player with ridiculously powerful backing
          */
         iframed: {
           type: Boolean,
-          computed: '_computeIframed(source, sandboxed)',
+          computed: '_computeIframed(sourceData, sandboxed)',
         },
         /**
          * Computed if this should be in a11y-media-player.
          */
         isA11yMedia: {
           type: Boolean,
-          computed: '_computeA11yMedia(sourceType,sandboxed)',
+          computed: '_computeA11yMedia(sourceType, sandboxed)',
         },
         /**
          * The language of the media
@@ -191,20 +185,6 @@ A simple responsive video player with ridiculously powerful backing
          */
         mediaTitle: {
           type: String,
-        },
-        /**
-          * The type of media, i.e. "video" or "audio"
-          */
-        mediaType: {
-          type: String,
-          computed: '_computeMediaType(source)',
-        },
-        /**
-          * The type of source, i.e. "local", "vimeo", "youtube", etc.
-          */
-        sourceType: {
-          type: String,
-          computed: '_computeSourceType(source)',
         },
         /**
          * What to preload for a11y-media-player: auto, metadata (default), or none.
@@ -226,7 +206,7 @@ A simple responsive video player with ridiculously powerful backing
          */
         sandboxed: {
           type: Boolean,
-          computed: '_computeSandboxed(source)',
+          computed: '_computeSandboxed(sourceData)',
         },
         /**
          * Source of the video
@@ -236,18 +216,40 @@ A simple responsive video player with ridiculously powerful backing
           value: null
         },
         /**
+         * Source of the video
+         */
+        sources: {
+          type: Array,
+          value: []
+        },
+        /**
          * List of source objects
          */
         sourceData: {
           type: Array,
-          computed: '_getSourceData(sources)',
+          computed: '_getSourceData(source,sources)',
+          reflectToAttribute: true
         },
         /**
-         * Computed / cleaned up source.
-         */
-        src: {
+          * The type of source, i.e. "local", "vimeo", "youtube", etc.
+          */
+        sourceType: {
           type: String,
-          computed: '_computeSRC(source)',
+          computed: '_computeSourceType(sourceData)',
+        },
+        /**
+          * The type of source, i.e. "local", "vimeo", "youtube", etc.
+          */
+        youtubeId: {
+          type: String,
+          computed: '_computeYoutubeId(sourceData,sourceType)',
+        },
+        /**
+          * The type of source, i.e. "local", "vimeo", "youtube", etc.
+          */
+        isYoutube: {
+          type: Boolean,
+          computed: '_computeYoutube(sourceType)',
         },
         /** 
           * When playing but scrolled off screen, to which corner does it stick: 
@@ -260,31 +262,17 @@ A simple responsive video player with ridiculously powerful backing
           reflectToAttribute: true
         },
         /**
-         * Closed caption tracks
+          * Array of text tracks
+          * [{
+          *  "src": "path/to/track.vtt",
+          *  "label": "English",
+          *  "srclang": "en",
+          *  "kind": "subtitles",
+         * }]
          */
-        track: {
-          type: String,
-        },
-        /**
-         * The label for the Track
-         */
-        trackLang: {
-          type: String,
-          value: 'English'
-        },
-        /**
-         * The language of the closed caption track
-         */
-        trackLang: {
-          type: String,
-          value: 'en'
-        },
-        /**
-         * The language of the closed caption track
-         */
-        trackKind: {
-          type: String,
-          value: 'subtitles'
+        tracks: {
+          type: Array,
+          value: []
         },
         /**
           * Source of optional thumbnail image
@@ -400,13 +388,6 @@ A simple responsive video player with ridiculously powerful backing
                 'required': false,
                 'validationType': 'text',
               },
-              /*{
-                'property': 'responsive',
-                'title': 'Responsive',
-                'description': 'The video automatically fills the available area.',
-                'inputMethod': 'boolean',
-                'icon': 'image:photo-size-select-small',
-              },*/
               {
                 'property': 'accentColor',
                 'title': 'Accent color',
@@ -459,7 +440,6 @@ A simple responsive video player with ridiculously powerful backing
                   'bottom-right': 'bottom-right',
                 },
               },
-              /* Future feature 
               {
                 'property': 'sources',
                 'title': 'Other sources',
@@ -491,27 +471,27 @@ A simple responsive video player with ridiculously powerful backing
                     },
                   },
                 ],
-              },*/
+              },
               {
                 'property': 'tracks',
                 'title': 'Track list',
                 'description': 'Tracks of different languages of closed captions',
                 'inputMethod': 'array',
                 'properties': [
-                  /* Future feature
                   {
                     'property': 'kind',
                     'title': 'Kind',
                     'description': 'Kind of track',
                     'inputMethod': 'select',
                     'options': {
-                      'subtitles': 'subtitles',
+                      'subtitles': 'subtitles'/*,
+                      Future Features
                       'description': 'description',
                       'thumbnails': 'thumbnails',
                       'interactive': 'interactive',
-                      'annotation': 'annotation'
+                      'annotation': 'annotation'*/
                     },
-                  },*/
+                  },
                   {
                     'property': 'label',
                     'title': 'Label',
@@ -538,12 +518,26 @@ A simple responsive video player with ridiculously powerful backing
         this.setHaxProperties(props);
       },
       /**
-       * Compute iframed status
+       * Get Youtube ID
        */
-      _computeA11yMedia: function(sourceType,sandboxed) {
-        // make sure we take into account sandboxing as well
-        // so that we can manage the state effectively
-        if (!sandboxed && (sourceType == 'youtube' && sourceType == 'local')) {
+      _computeYoutubeId: function(sourceData, sourceType) {
+        if (sourceType=='youtube') {
+          return this.cleanVideoSource(sourceData[0].src).replace(/(https?:\/\/)?www.youtube.com\/embed\//,'');
+        }
+        return false;
+      },
+      /**
+       * Determine if it is youtube
+       */
+      _computeYoutube: function(sourceType) {
+        return sourceType === 'youtube';
+      },
+      /**
+       * Determine if it is compatible with a11y-media-player
+       */
+      _computeA11yMedia: function(sourceType, sandboxed) {
+        console.log('_computeA11yMedia',this,this.sourceData,!sandboxed,sourceType,!sandboxed && (sourceType == 'youtube' && sourceType == 'local'));
+        if (!sandboxed && (sourceType == 'youtube' || sourceType == 'local')) {
           return true;
         }
         return false;
@@ -551,13 +545,29 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Compute iframed status
        */
-      _computeIframed: function(source, sandboxed) {
+      _computeIframed: function(sourceData, sandboxed) {
+        //console.log('_computeIframed',this,sourceData,this._sourceIsIframe(sourceData[0].src),sandboxed);
         // make sure we take into account sandboxing as well
         // so that we can manage the state effectively
-        if (this._sourceIsIframe(source) && !sandboxed) {
+        if (this._sourceIsIframe(sourceData[0].src) && !sandboxed) {
           return true;
         }
         return false;
+      },
+      /**
+       * Gets source and added to sources list
+       */
+       _getSourceData: function(source, sources) {
+        let temp = sources;
+        if (source !== null) {
+          let src = this._computeSRC(source);
+          temp.unshift({"src": src});
+        } 
+        for(let i = 0; i<temp.length; i++){
+          temp[i].type = temp[i].type !== undefined && temp[i].type !== null ? temp[i].type : this._computeMediaType(temp[i].src);
+          temp[i].src = this._computeSRC(temp[i].src);
+        }
+        return temp;
       },
       /**
        * Compute media type based on source, i.e. 'audio/wav' for '.wav'
@@ -565,7 +575,7 @@ A simple responsive video player with ridiculously powerful backing
       _computeMediaType: function(source) {
         let audio = ['aac','flac','mp3','oga','wav'], video = ['mov','mp4','ogv','webm'], type = '', findType = function(text,data){
           for(let i=0; i<data.length;i++){
-            if(type === '' && source.toLowerCase.indexOf('.'+data[i]) > -1) type = text+'/'+data[i];
+            if(type === '' && source !== null && source.toLowerCase().indexOf('.'+data[i]) > -1) type = text+'/'+data[i];
           }
         };
         findType('audio',audio);
@@ -575,10 +585,10 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Compute sandboxed status
        */
-      _computeSandboxed: function(source) {
+      _computeSandboxed: function(sourceData) {
         // we have something that would require an iframe
         // see if we have a local system that would want to sandbox instead
-        if (this._sourceIsIframe(source)) {
+        if (this._sourceIsIframe(sourceData[0].src)) {
           // fake the creation of a webview element to see if it's valid
           // or not.
           let test = document.createElement('webview');
@@ -597,9 +607,9 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Compute video type based on source
        */
-      _computeSourceType: function(source) {
-        if (typeof source !== typeof undefined) {
-          return this.getVideoType(source);
+      _computeSourceType: function(sourceData) {
+        if (sourceData !== undefined && sourceData !== null && typeof sourceData[0].src !== typeof undefined) {
+          return this.getVideoType(sourceData[0].src);
         } else {
           return null;
         }
@@ -610,7 +620,7 @@ A simple responsive video player with ridiculously powerful backing
        * of valid values.
        */
       _computeSRC: function(source) {
-        if (typeof source !== typeof undefined) {
+        if (source !== null && typeof(source) !== undefined) {
           let type = this.sourceType;
           // ensure that this is a valid url / cleaned up a bit
           source = this.cleanVideoSource(source, type);

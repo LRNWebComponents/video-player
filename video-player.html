@@ -243,7 +243,7 @@ A simple responsive video player with ridiculously powerful backing
           */
         youtubeId: {
           type: String,
-          computed: '_computeYoutubeId(sourceData,sourceType)',
+          computed: '_computeYoutubeId(source,sourceType)',
         },
         /**
           * The type of source, i.e. "local", "vimeo", "youtube", etc.
@@ -521,9 +521,9 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Get Youtube ID
        */
-      _computeYoutubeId: function(sourceData, sourceType) {
-        if (sourceType=='youtube') {
-          return this.cleanVideoSource(sourceData[0].src).replace(/(https?:\/\/)?www.youtube(-nocookie)?.com\/embed\//,'');
+      _computeYoutubeId: function(source, sourceType) {
+        if (source !== undefined && sourceType === 'youtube') {
+          return this._computeSRC(source).replace(/(https?:\/\/)?(www.)?youtube(-nocookie)?.com\/embed\//,'');
         }
         return false;
       },
@@ -546,10 +546,9 @@ A simple responsive video player with ridiculously powerful backing
        * Compute iframed status
        */
       _computeIframed: function(sourceData, sandboxed) {
-        //console.log('_computeIframed',this,sourceData,this._sourceIsIframe(sourceData[0].src),sandboxed);
         // make sure we take into account sandboxing as well
         // so that we can manage the state effectively
-        if (this._sourceIsIframe(sourceData[0].src) && !sandboxed) {
+        if (sourceData.length > 0 && sourceData[0] !== undefined && this._sourceIsIframe(sourceData[0].src) && !sandboxed) {
           return true;
         }
         return false;
@@ -557,16 +556,17 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Gets source and added to sources list
        */
-       _getSourceData: function(source, sources,tracks) {
-        let temp = sources;
-        if (source !== null) {
-          let src = this._computeSRC(source);
-          temp.unshift({"src": src});
-        } 
+       _getSourceData: function(source, sources, tracks) {
+        let temp = sources.slice();
         for(let i = 0; i<temp.length; i++){
           temp[i].type = temp[i].type !== undefined && temp[i].type !== null ? temp[i].type : this._computeMediaType(temp[i].src);
           temp[i].src = this._computeSRC(temp[i].src);
         }
+        if (source !== null) {
+          let src = this._computeSRC(source);
+          this.sourceType = this._computeSourceType(src);
+          if (this.sourceType !== 'youtube') temp.unshift({"src": src,"type": this._computeMediaType(src)});
+        } 
         this.__standAlone = tracks === undefined || tracks === null || tracks.length === 0;
         return temp;
       },
@@ -589,7 +589,7 @@ A simple responsive video player with ridiculously powerful backing
       _computeSandboxed: function(sourceData) {
         // we have something that would require an iframe
         // see if we have a local system that would want to sandbox instead
-        if (this._sourceIsIframe(sourceData[0].src)) {
+        if (sourceData.length > 0 && sourceData[0] !== undefined && this._sourceIsIframe(sourceData[0].src)) {
           // fake the creation of a webview element to see if it's valid
           // or not.
           let test = document.createElement('webview');
@@ -609,7 +609,7 @@ A simple responsive video player with ridiculously powerful backing
        * Compute video type based on source
        */
       _computeSourceType: function(sourceData) {
-        if (sourceData !== undefined && sourceData !== null && typeof sourceData[0].src !== typeof undefined) {
+        if (sourceData.length > 0 && sourceData[0] !== undefined && typeof sourceData[0].src !== typeof undefined) {
           return this.getVideoType(sourceData[0].src);
         } else {
           return null;
@@ -622,7 +622,7 @@ A simple responsive video player with ridiculously powerful backing
        */
       _computeSRC: function(source) {
         if (source !== null && typeof(source) !== undefined) {
-          let type = this.sourceType;
+          let type = this.sourceType !== undefined ? this.sourceType : this.getVideoType(source);
           // ensure that this is a valid url / cleaned up a bit
           source = this.cleanVideoSource(source, type);
           if (type == 'vimeo') {
@@ -647,13 +647,6 @@ A simple responsive video player with ridiculously powerful backing
             if (typeof this.videoColor !== typeof undefined) {
               source += '&color=' + this.videoColor;
             }
-          }
-          else if (type == 'youtube') {
-            // ensure options are applied to the address
-            source = source.replace('youtube.com/embed', 'youtube-nocookie.com/embed');
-            source += '?showinfo=0';
-            source += '&controls=0';
-            source += '&rel=0';
           }
           else if (type == 'dailymotion') {
             source += '&ui-start-screen-info=false';

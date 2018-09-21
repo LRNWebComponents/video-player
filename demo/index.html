@@ -37,7 +37,7 @@
         </template>
       </demo-snippet>
     </div>
-        <div class="vertical-section-container centered">
+    <div class="vertical-section-container centered">
       <h3>video-player for any address</h3>
       <demo-snippet>
         <template>
@@ -66,6 +66,20 @@
         <template>
           <video-player source="https://vimeo.com/144218562" not-responsive width="400" height="200"></video-player>
           <video-player source="https://www.youtube.com/watch?v=o9RypkhGqrg" not-responsive></video-player>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>video-player with sources and tracks as slots</h3>
+      <demo-snippet>
+        <template>
+          <video-player
+            crossorigin="anonymous"
+            thumbnail-src="https://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/headshot.jpg?itok=_1HEhahr" >
+            <div slot="caption">Video Test</div>
+            <source slot="source" src="https://personal.psu.edu/lnm105/stclair.mp4" type="video/mp4">
+            <track slot="track" src="samples/stclair.vtt" kind="subtitles" srclang="en" label="English">
+          </video-player>
         </template>
       </demo-snippet>
     </div>

@@ -72,7 +72,6 @@ A simple responsive video player with ridiculously powerful backing
         sticky-corner$="[[stickyCorner]]" 
         thumbnail-src$="[[thumbnailSrc]]"
         youtube-id$="[[youtubeId]]">
-        <slot name="caption"></slot>
         <template id="sources" is="dom-repeat" items="[[sourceData]]" as="sd">
           <source src$="[[sd.src]]" type$="[[sd.type]]">
         </template>

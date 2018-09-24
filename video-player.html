@@ -71,6 +71,7 @@ A simple responsive video player with ridiculously powerful backing
         stand-alone$="[[__standAlone]]" 
         sticky-corner$="[[stickyCorner]]" 
         thumbnail-src$="[[thumbnailSrc]]"
+        crossorigin$="[[crossorigin]]"
         youtube-id$="[[youtubeId]]">
         <slot name="source"></slot>
         <slot name="track"></slot>
@@ -299,6 +300,13 @@ A simple responsive video player with ridiculously powerful backing
         width: {
           type: String,
           value: null
+        },
+        /**
+         * Cross origin flag for transcripts to load
+         */
+        crossorigin: {
+          type: Boolean,
+          value: false,
         },
       },
       /**

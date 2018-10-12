@@ -9,7 +9,7 @@
     "schema-behaviors": "LRNWebComponents/schema-behaviors#^0.2.0",
     "a11y-behaviors": "LRNWebComponents/a11y-behaviors#^1.0.2",
     "media-behaviors": "LRNWebComponents/media-behaviors#^1.1.4",
-    "a11y-media-player": "LRNWebComponents/a11y-media-player#^1.1.0"
+    "a11y-media-player": "LRNWebComponents/a11y-media-player#^1.0.12"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
